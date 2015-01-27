@@ -1,5 +1,5 @@
 === Plugin Name ===
-Contributors: (this should be a list of wordpress.org userid's)
+Contributors: erichmond
 Donate link: http://www.squareonemd.co.uk/
 Tags: instagram
 Requires at least: 4.0.1
