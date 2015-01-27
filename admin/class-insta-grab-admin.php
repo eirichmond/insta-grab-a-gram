@@ -164,7 +164,7 @@ class Insta_Grab_Admin {
 
         add_settings_field(
             'insta_apiKey', // ID
-            'apiKey', // Title 
+            'CLIENT ID', // Title 
             array( $this, 'insta_apiKey_callback' ), // Callback
             'instagrabagram-setting-admin', // Page
             'setting_section_id' // Section           
@@ -172,7 +172,7 @@ class Insta_Grab_Admin {
 
         add_settings_field(
             'insta_apiSecret', // ID
-            'apiSecret', // Title 
+            'CLIENT SECRET', // Title 
             array( $this, 'insta_apiSecret_callback' ), // Callback
             'instagrabagram-setting-admin', // Page
             'setting_section_id' // Section           
@@ -180,7 +180,7 @@ class Insta_Grab_Admin {
 
         add_settings_field(
             'insta_apiCallback', // ID
-            'apiCallback', // Title 
+            'WEBSITE URL', // Title 
             array( $this, 'insta_apiCallback_callback' ), // Callback
             'instagrabagram-setting-admin', // Page
             'setting_section_id' // Section           
