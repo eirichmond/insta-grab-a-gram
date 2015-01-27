@@ -41,9 +41,12 @@ Answer to foo bar dilemma.
 = 1.0 =
 @TODO
 
-== Arbitrary section ==
-
 == Upgrade Notice ==
+
+= 1.0 =
+First release version.
+
+== Arbitrary section ==
 
 == A brief Markdown Example ==
 
