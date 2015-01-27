@@ -43,6 +43,8 @@ Answer to foo bar dilemma.
 
 == Arbitrary section ==
 
+== Upgrade Notice ==
+
 == A brief Markdown Example ==
 
 @TODO
