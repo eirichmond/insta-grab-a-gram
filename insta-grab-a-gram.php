@@ -14,7 +14,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Insta Grabagram
- * Plugin URI:        http://www.squareonemd.co.uk/
+ * Plugin URI:        https://github.com/eirichmond/insta-grab-a-gram
  * Description:       This plugin grabs a tagged image from instagram via the instragram API.
  * Version:           1.0.0
  * Author:            Elliott Richmond
