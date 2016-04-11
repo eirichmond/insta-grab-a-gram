@@ -29,4 +29,21 @@
 	 * be doing this, we should try to minimize doing that in our own work.
 	 */
 
-})( jQuery );
+	$(function() {
+		 
+		$('.nav-tab-wrapper a').on('click',function(e){
+			
+	        var currentAttrValue = $(this).attr('href');
+	        	 
+	        // Show/Hide Tabs
+	        $('.tabs ' + currentAttrValue).show().siblings('.tabs').hide();
+	 
+	        // Change/remove current tab to active
+	        $(this).addClass('nav-tab-active').siblings().removeClass('nav-tab-active');
+	 
+	        e.preventDefault();
+	    });
+
+	});
+    
+    })( jQuery );

@@ -9,14 +9,14 @@
  * that starts the plugin.
  *
  * @link              http://www.squareonemd.co.uk
- * @since             1.0.0
+ * @since             1.1.9
  * @package           Insta_Grab
  *
  * @wordpress-plugin
  * Plugin Name:       Insta Grabagram
- * Plugin URI:        https://github.com/eirichmond/insta-grab-a-gram
+ * Plugin URI:        http://www.squareonemd.co.uk/
  * Description:       This plugin grabs a tagged image from instagram via the instragram API.
- * Version:           1.0.0
+ * Version:           1.1.9
  * Author:            Elliott Richmond
  * Author URI:        http://www.squareonemd.co.uk/
  * License:           GPL-2.0+
@@ -64,7 +64,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-insta-grab.php';
  * then kicking off the plugin from this point in the file does
  * not affect the page life cycle.
  *
- * @since    1.0.0
+ * @since    1.1.9
  */
 function run_insta_grab() {
 

@@ -4,7 +4,7 @@
  * The public-facing functionality of the plugin.
  *
  * @link       http://www.squareonemd.co.uk
- * @since      1.0.0
+ * @since      1.1.9
  *
  * @package    Insta_Grab
  * @subpackage Insta_Grab/public
@@ -100,6 +100,34 @@ class Insta_Grab_Public {
 
 	}
 	
+	public function check_instagram_authorised() {
+		if (isset($_GET) && !empty($_GET['code'])) {
+			$instasetup = get_option( 'instagrabagram_option_name' );
+		    $instagram = new Instagram(array(
+		      'apiKey'      => $instasetup['insta_apiKey'],
+		      'apiSecret'   => $instasetup['insta_apiSecret'],
+		      'apiCallback' => $instasetup['insta_apiCallback']
+		    ));
+			
+			$code = $_GET['code'];
+			$data = $instagram->getOAuthToken($code);
+			
+			if ($data->access_token) {
+				$instasetup['insta_access_token'] = $data->access_token;
+				update_option('instagrabagram_option_name', $instasetup);
+				echo '<div class="instagrab-notice success">';
+				echo 'Congrats! Instagram has been authorised! <a href="'.get_bloginfo('url').'">Remove</a>';
+				echo '</div>';
+			} else {
+				echo '<div class="instagrab-notice error">';
+				echo 'Error! Unable to connect to your instagram account! Please try again.';
+				echo '</div>';
+			}
+
+		}
+	
+	}
+	
 	/**
 	 * Render public.
 	 * @TODO add conditionals for options
@@ -109,39 +137,73 @@ class Insta_Grab_Public {
 	 * @since    1.0.0
 	 */
 	public function get_instagram_settings () {
+		
+		$article_id = 'instagrab';
+		$ul_id = 'igag-ul';
 
 		$instasetup = get_option( 'instagrabagram_option_name' );
 		if (!empty($instasetup)) {
 		
+/*
 		    $instagram = new Instagram(array(
 		      'apiKey'      => $instasetup['insta_apiKey'],
 		      'apiSecret'   => $instasetup['insta_apiSecret'],
 		      'apiCallback' => $instasetup['insta_apiCallback']
 		    ));
+*/
 		    
-		    $hashtag = $instasetup['insta_apitag'];	    
+		    $hashtag = $instasetup['insta_apitag'];	 
+		    
+			$curl = curl_init();
+			
+			curl_setopt_array($curl, array(
+				CURLOPT_URL => 'https://api.instagram.com/v1/tags/'.$hashtag.'/media/recent?access_token='.$instasetup['insta_access_token'],
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => "",
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 30,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => "GET",
+				CURLOPT_HTTPHEADER => array(
+					"authorization: Basic Og==",
+					"cache-control: no-cache",
+					"postman-token: d9f6ca69-3642-eb3d-c5f6-d6cba3b0cd81"
+				),
+			));
+			
+			$response = curl_exec($curl);
+			$err = curl_error($curl);
+			
+			curl_close($curl);
+			
+			if ($err) {
+				echo "cURL Error #:" . $err;
+			} else {
+				$jsondata = json_decode($response);
+			}
 
-			$medias = $instagram->getTagMedia($hashtag);
+
+			$medias = $jsondata;
 			$media_count = $instasetup['insta_count'];
 
 			// debug using $variable
-			// echo '<pre>'; print_r($medias); echo '</pre>';
+ 			//echo '<pre>'; print_r($medias); echo '</pre>';
 			
 			if ($medias->meta->code == '400'){
-				echo 'Cannot connect to your images';		
+				echo 'sorry couldn\'t connect to instagram';		
 			} else {
-				echo '<article id="instagrab" class="hentry">';
-				echo '<ul class="entry-content">';
+				echo '<article id="'.apply_filters('igag_article_id', $article_id).'" class="hentry">';
+				do_action('igag_before_ul_list_images');
+				echo '<ul id="'. apply_filters('igag_ul_id',$ul_id) .'" class="entry-content">';
 						$count = 0;
 					    foreach ($medias->data as $media) {
 					    	if ($count == $media_count) continue;
 					    	$image = $media->images->standard_resolution->url;
-					    	echo '<li>
-								    <img src="'.$image.'" />
-								</li>';
+					    	echo '<li>'.$this->imagelinkcheck($instasetup, $media).'</li>';
 							$count++;
 					    }
 				echo '</ul>';
+				do_action('igag_after_ul_list_images');
 				echo '</article>';
 			}
 		} else {
@@ -149,5 +211,18 @@ class Insta_Grab_Public {
 			echo '<div class="row"><div class="primary alert">There seems to be a problem connecting to your Instagram App, have you input the correct <a href="' . $settings_url . '">details here</a></div></div>';
 		}
 	
+	}
+	
+	public function imagelinkcheck($instasetup, $media) {
+
+		if (isset($instasetup['insta_link'])) {
+			$link = $media->link;
+			$image_output = '<a href="'.esc_html($link).'" target="_blank"><img src="'.$media->images->standard_resolution->url.'"></a>';
+		} else {
+			$image_output = '<img src="'.$media->images->standard_resolution->url.'">';
+		}
+		
+		return $image_output;
+		
 	}
 }

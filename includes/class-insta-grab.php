@@ -181,6 +181,8 @@ class Insta_Grab {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 		// add action to render public side
 		$this->loader->add_action( 'insta_grab_a_gram', $plugin_public, 'get_instagram_settings' );
+		
+		$this->loader->add_action( 'template_redirect', $plugin_public, 'check_instagram_authorised' );
 
 	}
 
