@@ -142,6 +142,8 @@ class Insta_Grab_Public {
 		$ul_id = 'igag-ul';
 
 		$instasetup = get_option( 'instagrabagram_option_name' );
+		$instasettings = get_option( 'instagrabagram_settings_name' );
+
 		if (!empty($instasetup)) {
 		
 /*
@@ -152,60 +154,44 @@ class Insta_Grab_Public {
 		    ));
 */
 		    
-		    $hashtag = $instasetup['insta_apitag'];	 
+		    $hashtag = $instasettings['insta_apitag'];	 
 
-		    $cache = $instasetup['insta_cache'];
-		    $cache_time = $instasetup['insta_cache_time'];
 		    
-		    if ($cache)	{
-			    echo 'User wants to use cache';
-			    if ($cache_time) {
-				    echo 'User wants to refresh cache in ' . $cache_time .' minutes.';
-			    }
-		    }
-		    
-			// Get any existing copy of our transient data
-			if ( false === ( $instagrabagram_results = get_transient( 'instagrabagram_results' ) ) ) {
-				// It wasn't there, so regenerate the data and save the transient
-				
-				$curl = curl_init();
-				
-				curl_setopt_array($curl, array(
-					CURLOPT_URL => 'https://api.instagram.com/v1/tags/'.$hashtag.'/media/recent?access_token='.$instasetup['insta_access_token'],
-					CURLOPT_RETURNTRANSFER => true,
-					CURLOPT_ENCODING => "",
-					CURLOPT_MAXREDIRS => 10,
-					CURLOPT_TIMEOUT => 30,
-					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-					CURLOPT_CUSTOMREQUEST => "GET",
-					CURLOPT_HTTPHEADER => array(
-						"authorization: Basic Og==",
-						"cache-control: no-cache",
-						"postman-token: d9f6ca69-3642-eb3d-c5f6-d6cba3b0cd81"
-					),
-				));
-				
-				$response = curl_exec($curl);
-				$err = curl_error($curl);
-				
-				curl_close($curl);
-				
-				if ($err) {
-					echo "cURL Error #:" . $err;
-				} else {
-					$jsondata = json_decode($response);
-				}
-				
-				$medias = $jsondata;
-
-				$instagrabagram_results = json_decode(json_encode($medias), true);
-				
-				set_transient( 'instagrabagram_results', $instagrabagram_results, 60 );
+			$curl = curl_init();
+			
+			curl_setopt_array($curl, array(
+				CURLOPT_URL => 'https://api.instagram.com/v1/tags/'.$hashtag.'/media/recent?access_token='.$instasetup['insta_access_token'],
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => "",
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 30,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => "GET",
+				CURLOPT_HTTPHEADER => array(
+					"authorization: Basic Og==",
+					"cache-control: no-cache",
+					"postman-token: d9f6ca69-3642-eb3d-c5f6-d6cba3b0cd81"
+				),
+			));
+			
+			$response = curl_exec($curl);
+			$err = curl_error($curl);
+			
+			curl_close($curl);
+			
+			if ($err) {
+				echo "cURL Error #:" . $err;
+			} else {
+				$jsondata = json_decode($response);
 			}
 			
-// 			echo '<pre>';print_r($instagrabagram_results);echo '</pre>';
+			$medias = $jsondata;
+
+			$instagrabagram_results = json_decode(json_encode($medias), true);
 			
-			$media_count = $instasetup['insta_count'];
+			//echo '<pre>';print_r($instagrabagram_results);echo '</pre>';
+			
+			$media_count = $instasettings['insta_count'];
 
 			// debug using $variable
 			

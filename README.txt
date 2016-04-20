@@ -59,6 +59,7 @@ once activated you will be given the CLIENT ID and CLIENT SECRET in your account
 
 * Authoring link changes
 * Tab conflict with other plugins
+* Tabs cleaned up
 
 = 1.1.9 =
 

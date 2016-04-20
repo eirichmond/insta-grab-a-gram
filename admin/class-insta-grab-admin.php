@@ -116,6 +116,8 @@ class Insta_Grab_Admin {
             'instagrabagram-setting-admin', 
             array( $this, 'instagrabagram_admin_page' )
         );
+        
+        
     }
 
     /**
@@ -125,6 +127,8 @@ class Insta_Grab_Admin {
     {
         // Set class property
         $this->options = get_option( 'instagrabagram_option_name' );
+        $this->settings = get_option( 'instagrabagram_settings_name' );
+                
         ?>
 			   
 			<div class="wrap">
@@ -132,7 +136,7 @@ class Insta_Grab_Admin {
 				<div id="icon-options-general" class="icon32"></div>
 				<h2>Instagrabagram</h2>
 				
-				<?php if (empty($this->options['insta_apiKey']) || empty($this->options['insta_apiSecret']) || empty($this->options['insta_apiCallback']) || empty($this->options['insta_count'])) { ?>
+				<?php if (empty($this->options['insta_apiKey']) || empty($this->options['insta_apiSecret']) || empty($this->options['insta_apiCallback'])) { ?>
 					<div style="width:99%; padding: 5px;" class="error below-h2"><p>It doesn't look like there are any Instagram Client details saved yet, make sure to create a new Client in your Instagram account, <a href="http://instagram.com/developer/" target="_blank">do you want to create that now?</a></p></div>
 				<?php } ?>
 
@@ -147,9 +151,9 @@ class Insta_Grab_Admin {
 							
 <div class="tabs">
 	<h2 class="insta-nav-tab-wrapper">
-		<a href="#instatab1" class="nav-tab nav-tab-active">Settings</a>
-		<a href="#instatab2" class="nav-tab">Hooks and Filters</a>
-<!-- 		<a href="#tab3" class="nav-tab">Tab #2</a> -->
+		<a href="#instatab1" class="nav-tab nav-tab-active">API Settings</a>
+		<a href="#instatab2" class="nav-tab">Instagrabagram Settings</a>
+		<a href="#instatab3" class="nav-tab">Hooks and Filters</a>
 	</h2>
 	
 	<div id="instatab1" class="tabs nav-tab-active">
@@ -191,7 +195,31 @@ class Insta_Grab_Admin {
 		</div> <!-- .meta-box-sortables .ui-sortable -->
 		
 	</div>
-	<div id="instatab2" class="tabs">
+
+	<div id="instatab2" class="tabs" style="display: none;">
+
+		<div class="meta-box-sortables ui-sortable">
+			
+			<div class="postbox">
+			
+				<div class="inside">
+		            <form method="post" action="options.php">
+		            <?php
+		                // This prints out all hidden setting fields
+		                settings_fields( 'instagrabagram_settings_group' );   
+		                do_settings_sections( 'igag-setting-admin' );
+		                submit_button(); 
+		            ?>
+		            </form>
+				</div> <!-- .inside -->
+			
+			</div> <!-- .postbox -->
+			
+		</div> <!-- .meta-box-sortables .ui-sortable -->
+		
+	</div>
+
+	<div id="instatab3" class="tabs" style="display: none;">
 
 		<div class="meta-box-sortables ui-sortable">
 			
@@ -245,11 +273,7 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
 		</div> <!-- .meta-box-sortables .ui-sortable -->
 		
 	</div>
-<!--
-	<div id="tab3" class="tabs">
-		tabthree
-	</div>
--->
+
 </div>
 
 							
@@ -351,59 +375,43 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
             'setting_section_id' // Section           
         );      
 
+        register_setting(
+            'instagrabagram_settings_group', // Option group
+            'instagrabagram_settings_name', // Option name
+            array( $this, 'sanitize' ) // Sanitize
+        );
+
         add_settings_section(
-            'instgram_setting_section_id', // ID
-            'Instagram Feed Settings', // Title
-            array( $this, 'print_instagram_section_info' ), // Callback
-            'instagrabagram-setting-admin' // Page
+            'igag_setting_section_id', // ID
+            'Instagrabagram settings', // Title
+            array( $this, 'igag_setting_info' ), // Callback
+            'igag-setting-admin' // Page
         );  
 
         add_settings_field(
             'insta_apitag', // ID
             'Inastagram Hashtag', // Title 
             array( $this, 'insta_apitag_callback' ), // Callback
-            'instagrabagram-setting-admin', // Page
-            'instgram_setting_section_id' // Section           
+            'igag-setting-admin', // Page
+            'igag_setting_section_id' // Section           
         );      
 
         add_settings_field(
             'insta_count', // ID
             'How Many Images to pull (numeric)', // Title 
             array( $this, 'insta_count_callback' ), // Callback
-            'instagrabagram-setting-admin', // Page
-            'instgram_setting_section_id' // Section           
+            'igag-setting-admin', // Page
+            'igag_setting_section_id' // Section           
         );      
-
-        add_settings_section(
-            'instgram_other_setting_section_id', // ID
-            'Other Settings', // Title
-            array( $this, 'print_other_section_info' ), // Callback
-            'instagrabagram-setting-admin' // Page
-        );  
 
         add_settings_field(
             'insta_link', // ID
             'Clickable image links to Instagram', // Title 
             array( $this, 'insta_link_callback' ), // Callback
-            'instagrabagram-setting-admin', // Page
-            'instgram_other_setting_section_id' // Section           
+            'igag-setting-admin', // Page
+            'igag_setting_section_id' // Section           
         );      
 
-        add_settings_field(
-            'insta_cache', // ID
-            'Cache images to reduce calls to the API', // Title 
-            array( $this, 'insta_cache_callback' ), // Callback
-            'instagrabagram-setting-admin', // Page
-            'instgram_other_setting_section_id' // Section           
-        );      
-
-        add_settings_field(
-            'insta_cache_time', // ID
-            'Recache time in minutes', // Title 
-            array( $this, 'insta_cache_time_callback' ), // Callback
-            'instagrabagram-setting-admin', // Page
-            'instgram_other_setting_section_id' // Section           
-        );      
     }
 
     /**
@@ -435,11 +443,6 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
         if( isset( $input['insta_link'] ) )
             $new_input['insta_link'] = strip_tags( $input['insta_link'] );
 
-        if( isset( $input['insta_cache'] ) )
-            $new_input['insta_cache'] = strip_tags( $input['insta_cache'] );
-
-        if( isset( $input['insta_cache_time'] ) )
-            $new_input['insta_cache_time'] = absint( $input['insta_cache_time'] );
 
         return $new_input;
     }
@@ -458,6 +461,11 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
     public function print_section_info()
     {
         print 'Enter all your Instagram Client settings here inorder to make requests to the Instagram API:';
+    }
+
+    public function igag_setting_info()
+    {
+        print 'Enter all your Instagram settings here:';
     }
 
     /** 
@@ -518,8 +526,8 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
     public function insta_apitag_callback()
     {
         printf(
-            '<input type="text" id="insta_apitag" name="instagrabagram_option_name[insta_apitag]" value="%s" />',
-            isset( $this->options['insta_apitag'] ) ? esc_attr( $this->options['insta_apitag']) : ''
+            '<input type="text" id="insta_apitag" name="instagrabagram_settings_name[insta_apitag]" value="%s" />',
+            isset( $this->settings['insta_apitag'] ) ? esc_attr( $this->settings['insta_apitag']) : ''
         );
     }
 
@@ -529,8 +537,8 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
     public function insta_count_callback()
     {
         printf(
-            '<input type="text" id="insta_count" name="instagrabagram_option_name[insta_count]" value="%s" />',
-            isset( $this->options['insta_count'] ) ? esc_attr( $this->options['insta_count']) : ''
+            '<input type="text" id="insta_count" name="instagrabagram_settings_name[insta_count]" value="%s" />',
+            isset( $this->settings['insta_count'] ) ? esc_attr( $this->settings['insta_count']) : ''
         );
     }
     
@@ -539,29 +547,11 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
      */
     public function insta_link_callback()
     {
-		$linked = isset( $this->options['insta_link'] ) ? esc_attr( $this->options['insta_link']) : ''
+		$linked = isset( $this->settings['insta_link'] ) ? esc_attr( $this->settings['insta_link']) : ''
 		?>
-		<input type="checkbox" id="insta_link" name="instagrabagram_option_name[insta_link]" value="1" <?php checked( $linked, 1 ); ?> />
+		<input type="checkbox" id="insta_link" name="instagrabagram_settings_name[insta_link]" value="1" <?php checked( $linked, 1 ); ?> />
 		<?php
     }
 
-    public function insta_cache_callback()
-    {
-		$linked = isset( $this->options['insta_cache'] ) ? esc_attr( $this->options['insta_cache']) : ''
-		?>
-		<input type="checkbox" id="insta_cache" name="instagrabagram_option_name[insta_cache]" value="1" <?php checked( $linked, 1 ); ?> />
-		<?php
-    }
-    
-    /** 
-     * Get the settings option array and print one of its values
-     */
-    public function insta_cache_time_callback()
-    {
-        printf(
-            '<input type="text" id="insta_cache_time" name="instagrabagram_option_name[insta_cache_time]" value="%s" />',
-            isset( $this->options['insta_cache_time'] ) ? esc_attr( $this->options['insta_cache_time']) : ''
-        );
-    }
 
 }
