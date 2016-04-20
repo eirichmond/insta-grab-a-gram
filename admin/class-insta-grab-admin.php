@@ -146,13 +146,13 @@ class Insta_Grab_Admin {
 						<div id="post-body-content">
 							
 <div class="tabs">
-	<h2 class="nav-tab-wrapper">
-		<a href="#tab1" class="nav-tab nav-tab-active">Settings</a>
-		<a href="#tab2" class="nav-tab">Hooks and Filters</a>
+	<h2 class="insta-nav-tab-wrapper">
+		<a href="#instatab1" class="nav-tab nav-tab-active">Settings</a>
+		<a href="#instatab2" class="nav-tab">Hooks and Filters</a>
 <!-- 		<a href="#tab3" class="nav-tab">Tab #2</a> -->
 	</h2>
 	
-	<div id="tab1" class="tabs nav-tab-active">
+	<div id="instatab1" class="tabs nav-tab-active">
 
 		<div class="meta-box-sortables ui-sortable">
 			
@@ -175,7 +175,7 @@ class Insta_Grab_Admin {
 					$api_settings[] = $this->options['insta_apiCallback'];
 					$filtered = array_filter($api_settings);
 					if (!empty($filtered) && count($filtered) == 3) {
-					    $getLoginUrl = 'https://api.instagram.com/oauth/authorize?client_id='.$this->options['insta_apiKey'].'&redirect_uri='.$this->options['insta_apiCallback'].'&response_type=code';
+					    $getLoginUrl = 'https://api.instagram.com/oauth/authorize?client_id='.$this->options['insta_apiKey'].'&redirect_uri='.$this->options['insta_apiCallback'].'&response_type=code&scope=public_content';
 					?>
 				
 					<div class="inside">
@@ -191,7 +191,7 @@ class Insta_Grab_Admin {
 		</div> <!-- .meta-box-sortables .ui-sortable -->
 		
 	</div>
-	<div id="tab2" class="tabs">
+	<div id="instatab2" class="tabs">
 
 		<div class="meta-box-sortables ui-sortable">
 			
@@ -389,6 +389,21 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
             'instgram_other_setting_section_id' // Section           
         );      
 
+        add_settings_field(
+            'insta_cache', // ID
+            'Cache images to reduce calls to the API', // Title 
+            array( $this, 'insta_cache_callback' ), // Callback
+            'instagrabagram-setting-admin', // Page
+            'instgram_other_setting_section_id' // Section           
+        );      
+
+        add_settings_field(
+            'insta_cache_time', // ID
+            'Recache time in minutes', // Title 
+            array( $this, 'insta_cache_time_callback' ), // Callback
+            'instagrabagram-setting-admin', // Page
+            'instgram_other_setting_section_id' // Section           
+        );      
     }
 
     /**
@@ -420,6 +435,11 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
         if( isset( $input['insta_link'] ) )
             $new_input['insta_link'] = strip_tags( $input['insta_link'] );
 
+        if( isset( $input['insta_cache'] ) )
+            $new_input['insta_cache'] = strip_tags( $input['insta_cache'] );
+
+        if( isset( $input['insta_cache_time'] ) )
+            $new_input['insta_cache_time'] = absint( $input['insta_cache_time'] );
 
         return $new_input;
     }
@@ -524,7 +544,24 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
 		<input type="checkbox" id="insta_link" name="instagrabagram_option_name[insta_link]" value="1" <?php checked( $linked, 1 ); ?> />
 		<?php
     }
+
+    public function insta_cache_callback()
+    {
+		$linked = isset( $this->options['insta_cache'] ) ? esc_attr( $this->options['insta_cache']) : ''
+		?>
+		<input type="checkbox" id="insta_cache" name="instagrabagram_option_name[insta_cache]" value="1" <?php checked( $linked, 1 ); ?> />
+		<?php
+    }
     
-    
+    /** 
+     * Get the settings option array and print one of its values
+     */
+    public function insta_cache_time_callback()
+    {
+        printf(
+            '<input type="text" id="insta_cache_time" name="instagrabagram_option_name[insta_cache_time]" value="%s" />',
+            isset( $this->options['insta_cache_time'] ) ? esc_attr( $this->options['insta_cache_time']) : ''
+        );
+    }
 
 }

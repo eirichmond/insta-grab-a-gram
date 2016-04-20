@@ -31,7 +31,7 @@
 
 	$(function() {
 		 
-		$('.nav-tab-wrapper a').on('click',function(e){
+		$('.insta-nav-tab-wrapper a').on('click',function(e){
 			
 	        var currentAttrValue = $(this).attr('href');
 	        	 

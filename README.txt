@@ -2,9 +2,9 @@
 Contributors: erichmond
 Donate link: http://www.squareonemd.co.uk/
 Tags: Instagram, tag, hashtag
-Requires at least: 4.4.2
-Tested up to: 4.4.2
-Stable tag: 1.1.9
+Requires at least: 4.5
+Tested up to: 4.5
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,6 +54,11 @@ once activated you will be given the CLIENT ID and CLIENT SECRET in your account
 3. Include your own filters and hooks for flexibility
 
 == Changelog ==
+
+= 1.2.0 =
+
+* Authoring link changes
+* Tab conflict with other plugins
 
 = 1.1.9 =
 

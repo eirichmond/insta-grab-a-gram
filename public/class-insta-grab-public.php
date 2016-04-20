@@ -153,52 +153,72 @@ class Insta_Grab_Public {
 */
 		    
 		    $hashtag = $instasetup['insta_apitag'];	 
+
+		    $cache = $instasetup['insta_cache'];
+		    $cache_time = $instasetup['insta_cache_time'];
 		    
-			$curl = curl_init();
-			
-			curl_setopt_array($curl, array(
-				CURLOPT_URL => 'https://api.instagram.com/v1/tags/'.$hashtag.'/media/recent?access_token='.$instasetup['insta_access_token'],
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_ENCODING => "",
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 30,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => "GET",
-				CURLOPT_HTTPHEADER => array(
-					"authorization: Basic Og==",
-					"cache-control: no-cache",
-					"postman-token: d9f6ca69-3642-eb3d-c5f6-d6cba3b0cd81"
-				),
-			));
-			
-			$response = curl_exec($curl);
-			$err = curl_error($curl);
-			
-			curl_close($curl);
-			
-			if ($err) {
-				echo "cURL Error #:" . $err;
-			} else {
-				$jsondata = json_decode($response);
+		    if ($cache)	{
+			    echo 'User wants to use cache';
+			    if ($cache_time) {
+				    echo 'User wants to refresh cache in ' . $cache_time .' minutes.';
+			    }
+		    }
+		    
+			// Get any existing copy of our transient data
+			if ( false === ( $instagrabagram_results = get_transient( 'instagrabagram_results' ) ) ) {
+				// It wasn't there, so regenerate the data and save the transient
+				
+				$curl = curl_init();
+				
+				curl_setopt_array($curl, array(
+					CURLOPT_URL => 'https://api.instagram.com/v1/tags/'.$hashtag.'/media/recent?access_token='.$instasetup['insta_access_token'],
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_ENCODING => "",
+					CURLOPT_MAXREDIRS => 10,
+					CURLOPT_TIMEOUT => 30,
+					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					CURLOPT_CUSTOMREQUEST => "GET",
+					CURLOPT_HTTPHEADER => array(
+						"authorization: Basic Og==",
+						"cache-control: no-cache",
+						"postman-token: d9f6ca69-3642-eb3d-c5f6-d6cba3b0cd81"
+					),
+				));
+				
+				$response = curl_exec($curl);
+				$err = curl_error($curl);
+				
+				curl_close($curl);
+				
+				if ($err) {
+					echo "cURL Error #:" . $err;
+				} else {
+					$jsondata = json_decode($response);
+				}
+				
+				$medias = $jsondata;
+
+				$instagrabagram_results = json_decode(json_encode($medias), true);
+				
+				set_transient( 'instagrabagram_results', $instagrabagram_results, 60 );
 			}
-
-
-			$medias = $jsondata;
+			
+// 			echo '<pre>';print_r($instagrabagram_results);echo '</pre>';
+			
 			$media_count = $instasetup['insta_count'];
 
 			// debug using $variable
- 			//echo '<pre>'; print_r($medias); echo '</pre>';
 			
-			if ($medias->meta->code == '400'){
+			if ($instagrabagram_results['meta']['code'] == '400'){
 				echo 'sorry couldn\'t connect to instagram';		
 			} else {
 				echo '<article id="'.apply_filters('igag_article_id', $article_id).'" class="hentry">';
 				do_action('igag_before_ul_list_images');
 				echo '<ul id="'. apply_filters('igag_ul_id',$ul_id) .'" class="entry-content">';
 						$count = 0;
-					    foreach ($medias->data as $media) {
+					    foreach ($instagrabagram_results['data'] as $media) {
 					    	if ($count == $media_count) continue;
-					    	$image = $media->images->standard_resolution->url;
+					    	$image = $media['images']['standard_resolution']['url'];
 					    	echo '<li>'.$this->imagelinkcheck($instasetup, $media).'</li>';
 							$count++;
 					    }
@@ -216,10 +236,10 @@ class Insta_Grab_Public {
 	public function imagelinkcheck($instasetup, $media) {
 
 		if (isset($instasetup['insta_link'])) {
-			$link = $media->link;
-			$image_output = '<a href="'.esc_html($link).'" target="_blank"><img src="'.$media->images->standard_resolution->url.'"></a>';
+			$link = $media['link'];
+			$image_output = '<a href="'.esc_html($link).'" target="_blank"><img src="'.$media['images']['standard_resolution']['url'].'"></a>';
 		} else {
-			$image_output = '<img src="'.$media->images->standard_resolution->url.'">';
+			$image_output = '<img src="'.$media['images']['standard_resolution']['url'].'">';
 		}
 		
 		return $image_output;
