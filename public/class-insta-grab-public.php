@@ -76,7 +76,7 @@ class Insta_Grab_Public {
 		wp_enqueue_style( $this->insta_grab, plugin_dir_url( __FILE__ ) . 'css/insta-grab-public.css', array(), $this->version, 'all' );
 
 	}
-
+	
 	/**
 	 * Register the stylesheets for the public-facing side of the site.
 	 *
@@ -154,12 +154,14 @@ class Insta_Grab_Public {
 		    ));
 */
 		    
-		    $hashtag = $instasettings['insta_apitag'];	 
+		    $hashtag = $instasettings['insta_apitag'];
+		    $hashtag = 'notmissingthecold'; 
 
 		    
 			$curl = curl_init();
 			
 			curl_setopt_array($curl, array(
+				
 				CURLOPT_URL => 'https://api.instagram.com/v1/tags/'.$hashtag.'/media/recent?access_token='.$instasetup['insta_access_token'],
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_ENCODING => "",
@@ -189,7 +191,7 @@ class Insta_Grab_Public {
 
 			$instagrabagram_results = json_decode(json_encode($medias), true);
 			
-			//echo '<pre>';print_r($instagrabagram_results);echo '</pre>';
+			echo '<pre>';print_r($instagrabagram_results);echo '</pre>';
 			
 			$media_count = $instasettings['insta_count'];
 
@@ -204,7 +206,7 @@ class Insta_Grab_Public {
 						$count = 0;
 					    foreach ($instagrabagram_results['data'] as $media) {
 					    	if ($count == $media_count) continue;
-					    	$image = $media['images']['standard_resolution']['url'];
+					    	$image = $media['images']['low_resolution']['url'];
 					    	echo '<li>'.$this->imagelinkcheck($instasetup, $media).'</li>';
 							$count++;
 					    }
@@ -223,12 +225,35 @@ class Insta_Grab_Public {
 
 		if (isset($instasetup['insta_link'])) {
 			$link = $media['link'];
-			$image_output = '<a href="'.esc_html($link).'" target="_blank"><img src="'.$media['images']['standard_resolution']['url'].'"></a>';
+			$image_output = '<a href="'.esc_html($link).'" target="_blank"><img src="'.$media['images']['low_resolution']['url'].'"></a>';
 		} else {
-			$image_output = '<img src="'.$media['images']['standard_resolution']['url'].'">';
+			$image_output = '<img src="'.$media['images']['low_resolution']['url'].'">';
 		}
 		
 		return $image_output;
 		
 	}
+	
+	/**
+	 * Register shortcodes.
+	 *
+	 * @since    1.0.0
+	 */
+	public function register_shortcodes() {
+		
+		add_shortcode( 'instagrabagram', array($this, 'instagrabagram_func') );
+		
+	}
+	
+	/**
+	 * Fire instagrabagram_func shortcode.
+	 *
+	 * @since    1.0.0
+	 */
+	public function instagrabagram_func( $atts ){
+		
+		$this->get_instagram_settings();
+		
+	}
+
 }

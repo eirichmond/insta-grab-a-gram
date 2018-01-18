@@ -16,7 +16,7 @@
  * Plugin Name:       Insta Grabagram
  * Plugin URI:        http://www.squareonemd.co.uk/
  * Description:       This plugin grabs a tagged image from instagram via the instragram API.
- * Version:           1.2.0
+ * Version:           1.2.1
  * Author:            Elliott Richmond
  * Author URI:        http://www.squareonemd.co.uk/
  * License:           GPL-2.0+

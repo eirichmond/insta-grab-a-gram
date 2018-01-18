@@ -164,6 +164,7 @@ class Insta_Grab {
 		// add admin options
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'page_init' );
 
+
 	}
 
 	/**
@@ -183,6 +184,8 @@ class Insta_Grab {
 		$this->loader->add_action( 'insta_grab_a_gram', $plugin_public, 'get_instagram_settings' );
 		
 		$this->loader->add_action( 'template_redirect', $plugin_public, 'check_instagram_authorised' );
+
+		$this->loader->add_action( 'init', $plugin_public, 'register_shortcodes' );
 
 	}
 

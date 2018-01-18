@@ -107,7 +107,6 @@ class Insta_Grab_Admin {
      */
     public function add_plugin_page()
     {
-
         // This page will sit under "Settings"
         add_options_page(
             'Settings Instagrabagram', 
@@ -116,8 +115,6 @@ class Insta_Grab_Admin {
             'instagrabagram-setting-admin', 
             array( $this, 'instagrabagram_admin_page' )
         );
-        
-        
     }
 
     /**
@@ -128,198 +125,74 @@ class Insta_Grab_Admin {
         // Set class property
         $this->options = get_option( 'instagrabagram_option_name' );
         $this->settings = get_option( 'instagrabagram_settings_name' );
-                
-        ?>
-			   
-			<div class="wrap">
-				
-				<div id="icon-options-general" class="icon32"></div>
-				<h2>Instagrabagram</h2>
-				
-				<?php if (empty($this->options['insta_apiKey']) || empty($this->options['insta_apiSecret']) || empty($this->options['insta_apiCallback'])) { ?>
-					<div style="width:99%; padding: 5px;" class="error below-h2"><p>It doesn't look like there are any Instagram Client details saved yet, make sure to create a new Client in your Instagram account, <a href="http://instagram.com/developer/" target="_blank">do you want to create that now?</a></p></div>
-				<?php } ?>
+        
+		include_once(plugin_dir_path( dirname( __FILE__ ) ) . 'admin/partials/insta-grab-admin-display.php');
 
-		
-				
-				<div id="poststuff">
-				
-					<div id="post-body" class="metabox-holder columns-2">
-					
-						<!-- main content -->
-						<div id="post-body-content">
-							
-<div class="tabs">
-	<h2 class="insta-nav-tab-wrapper">
-		<a href="#instatab1" class="nav-tab nav-tab-active">API Settings</a>
-		<a href="#instatab2" class="nav-tab">Instagrabagram Settings</a>
-		<a href="#instatab3" class="nav-tab">Hooks and Filters</a>
-	</h2>
+	}
 	
-	<div id="instatab1" class="tabs nav-tab-active">
+    /**
+     * Check all api settings are empty or not
+	 * @return      boolean    $bool    true if a setting is empty.
+     */
+	public function check_api_settings(){
+		$bool = false;
+		if (empty($this->options['insta_apiKey']) || empty($this->options['insta_apiSecret']) || empty($this->options['insta_apiCallback'])) {
+			$bool = true;
+		}
+		return $bool;
+	}
+	
+    /**
+     * output error if setting is empty
+     */
+	public function confirm_api_settings() {
+		if ($this->check_api_settings()) { ?>
+			<div class="notice notice-error"><p>It doesn't look like there are any Instagram Client details saved yet, make sure to create a new Client in your Instagram account, <a href="http://instagram.com/developer/" target="_blank">do you want to create that now?</a></p></div>
+		<?php }
+	}
+	
+    /**
+     * Check all api settings are set complete
+	 * @return      boolean    $bool    true if a setting is empty.
+     */
+	public function check_if_ready_to_authorise() {
+		$api_settings = array($this->options['insta_apiKey'],$this->options['insta_apiSecret'],$this->options['insta_apiCallback']);
+		$filtered = array_filter($api_settings);
+		if (!empty($filtered) && count($filtered) == 3) {
+		    $getLoginUrl = 'https://api.instagram.com/oauth/authorize?client_id='.$this->options['insta_apiKey'].'&redirect_uri='.$this->options['insta_apiCallback'].'&response_type=code&scope=public_content';
+	    } else {
+		    $getLoginUrl = false;
+	    }
+	    
+	    return $getLoginUrl;
 
-		<div class="meta-box-sortables ui-sortable">
-			
-			<div class="postbox">
-			
-				<div class="inside">
-		            <form method="post" action="options.php">
-		            <?php
-		                // This prints out all hidden setting fields
-		                settings_fields( 'instagrabagram_option_group' );   
-		                do_settings_sections( 'instagrabagram-setting-admin' );
-		                submit_button(); 
-		            ?>
-		            </form>
-				</div> <!-- .inside -->
-				<?php
-					$api_settings = array();
-					$api_settings[] = $this->options['insta_apiKey'];
-					$api_settings[] = $this->options['insta_apiSecret'];
-					$api_settings[] = $this->options['insta_apiCallback'];
-					$filtered = array_filter($api_settings);
-					if (!empty($filtered) && count($filtered) == 3) {
-					    $getLoginUrl = 'https://api.instagram.com/oauth/authorize?client_id='.$this->options['insta_apiKey'].'&redirect_uri='.$this->options['insta_apiCallback'].'&response_type=code&scope=public_content';
-					?>
-				
-					<div class="inside">
-						<a href="<?php echo esc_attr($getLoginUrl); ?>">
-			            <img src="<?php echo plugin_dir_url( __FILE__ ) . 'img/authorise-instagram.png';?>" alt="authorise-instagram" width="256" height="128" />
-			            </a>
-					</div> <!-- .inside -->
-
-				<? } ?>
-			
-			</div> <!-- .postbox -->
-			
-		</div> <!-- .meta-box-sortables .ui-sortable -->
-		
-	</div>
-
-	<div id="instatab2" class="tabs" style="display: none;">
-
-		<div class="meta-box-sortables ui-sortable">
-			
-			<div class="postbox">
-			
-				<div class="inside">
-		            <form method="post" action="options.php">
-		            <?php
-		                // This prints out all hidden setting fields
-		                settings_fields( 'instagrabagram_settings_group' );   
-		                do_settings_sections( 'igag-setting-admin' );
-		                submit_button(); 
-		            ?>
-		            </form>
-				</div> <!-- .inside -->
-			
-			</div> <!-- .postbox -->
-			
-		</div> <!-- .meta-box-sortables .ui-sortable -->
-		
-	</div>
-
-	<div id="instatab3" class="tabs" style="display: none;">
-
-		<div class="meta-box-sortables ui-sortable">
-			
-			<div class="postbox">
-			
-				<div class="inside">
-					<h3><span>Hooks and Filters</span></h3>
-					<div class="inside">
-					<p>Adding the following hooks and filters to you own plugins or functions.php file will allow you to customise your own feed.</p>
-						
-					<p>To filter the instagrabagram article markup id</p>
-<pre><code class="language-php">
-function example_igag_container_id( $article_id ) {
-	$article_id = 'instagrab';
-    return $article_id;
-}
-add_filter( 'igag_article_id', 'example_igag_container_id' );
-</code></pre>
-
-
-<p>To filter the instagrabagram ul markup id</p>
-<pre><code class="language-php">
-function example_igag_ul_id( $ul_id ) {
-	$ul_id = 'igag-ul';
-    return $ul_id;
-}
-add_filter( 'igag_ul_id', 'example_igag_ul_id' );
-</code></pre>
-
-<p>An add action before images feed</p>
-<pre><code class="language-php">
-function example_igag_before_images() {
-	echo '<header class="entry-header"><h2 class="entry-title">My Instagrabagram Feed!</h2></header>';
-}
-add_action('igag_before_ul_list_images', 'example_igag_before_images');
-</code></pre>
-
-<p>An add action after images feed</p>
-<pre><code class="language-php">
-function example_igag_after_images() {
-	echo '<div class="entry-content"><p>Thanks for taking a peek, you can hashtag us too! By using #instagrabagram</p></div>';
-}
-add_action('igag_after_ul_list_images', 'example_igag_after_images');
-</code></pre>
-
-					</div> <!-- .inside -->
-				</div> <!-- .inside -->
-			
-			</div> <!-- .postbox -->
-			
-		</div> <!-- .meta-box-sortables .ui-sortable -->
-		
-	</div>
-
-</div>
-
-							
-						</div> <!-- post-body-content -->
-						
-						<!-- sidebar -->
-						<div id="postbox-container-1" class="postbox-container">
-							
-							<div class="meta-box-sortables">
-								
-								<div class="postbox">
-								
-									<h3><span>What next?</span></h3>
-									<div class="inside">
-
-										<p>Once installed there are a couple of things you need to do to get things working.</p> 
-										<ol>
-											<li>Go to <a href="http://Instagram.com/developer/">http://Instagram.com/developer/</a> and click the button that says "Register Your Application"</li>
-											<li>Fill in the details requested by Instagram, these will be thing like Application Name, Description, Website and redirect_uri (same as website will do).</li>
-											<li>Once complete you will be given a CLIENT ID and a CLIENT SECRET.</li>
-											<li>Now simply copy and paste the CLIENT ID, CLIENT SECRET and WEBSITE URI to this settings page which can be found from Dashboard > Settings > Instagrabagram.</li>
-											<li>Save your settings then place <br>&lt;?php do_action('insta_grab_a_gram'); ?&gt;<br> where you want your feed to appear in one of your theme templates files.</li>
-											<li>Take some instagrams and hashtag them with the hashtag you setup in the settings and your feed will auto populate</li>
-										</ol>
-							            <p><strong>Note:</strong> For this to work correctly you should have access to your template files, this is not shortcode it is a php custom action tag and must be placed in your template files where you want the feed to appear. If you do not have access then you should get your web developer or host to place this action tag.</p>
-							            <p>&lt;?php do_action('insta_grab_a_gram'); ?&gt;</p>
-							            
-							            <p>There are plans to create a shortcode option for future updates but for now this is the only way to make this plugin work, sorry for an inconvenience caused at this time.</p>
-
-									</div> <!-- .inside -->
-									
-								</div> <!-- .postbox -->
-								
-							</div> <!-- .meta-box-sortables -->
-							
-						</div> <!-- #postbox-container-1 .postbox-container -->
-						
-					</div> <!-- #post-body .metabox-holder .columns-2 -->
-					
-					<br class="clear">
-				</div> <!-- #poststuff -->
-				
-			</div> <!-- .wrap -->
-        <?php
-    }
-
+	}
+	
+    /**
+     * Check all api settings are set complete
+	 * @return      boolean    $bool    true if a setting is empty.
+     */
+	public function ready_to_authorise() {
+		if($this->options['insta_access_token']){
+			return;
+		}
+		if ($this->check_if_ready_to_authorise()) { ?>
+			<div class="authorise-instagram">
+				<a href="<?php echo esc_attr($this->check_if_ready_to_authorise()); ?>">
+				<h4>Good job! Now you are ready to authorise Instagram!</h4>
+	            <img src="<?php echo plugin_dir_url( dirname(__FILE__) ) . 'admin/img/Instagram_AppIcon.jpg';?>" alt="authorise-instagram"/>
+	            <h4>Click here to authorise Instagram...</h4>
+	            </a>
+			</div> <!-- .inside -->
+		<?php }
+	}
+	
+	public function initialise_settings() {
+		$settings = get_option( 'instagrabagram_settings_name' );
+		unset($settings['insta_apitag']);
+		update_option( 'instagrabagram_settings_name', $settings );
+	}
+	
     /**
      * Register and add settings
      * @TODO clean up comments
@@ -328,8 +201,10 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
      *   check priorty loading and css specificity 
      *   the theme might override naturally 
      */
-    public function page_init()
-    {        
+    public function page_init() {     
+	    
+	    $this->initialise_settings();
+	       
         register_setting(
             'instagrabagram_option_group', // Option group
             'instagrabagram_option_name', // Option name
@@ -338,7 +213,7 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
 
         add_settings_section(
             'setting_section_id', // ID
-            'API settings', // Title
+            '', // Title
             array( $this, 'print_section_info' ), // Callback
             'instagrabagram-setting-admin' // Page
         );  
@@ -383,11 +258,12 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
 
         add_settings_section(
             'igag_setting_section_id', // ID
-            'Instagrabagram settings', // Title
+            '', // Title
             array( $this, 'igag_setting_info' ), // Callback
             'igag-setting-admin' // Page
         );  
 
+/*
         add_settings_field(
             'insta_apitag', // ID
             'Inastagram Hashtag', // Title 
@@ -395,6 +271,7 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
             'igag-setting-admin', // Page
             'igag_setting_section_id' // Section           
         );      
+*/
 
         add_settings_field(
             'insta_count', // ID
@@ -431,11 +308,13 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
         if( isset( $input['insta_apiCallback'] ) )
             $new_input['insta_apiCallback'] = esc_url_raw( $input['insta_apiCallback'] );
 
-         if( isset( $input['insta_access_token'] ) )
+        if( isset( $input['insta_access_token'] ) )
             $new_input['insta_access_token'] = strip_tags( $input['insta_access_token'] );
 
-       if( isset( $input['insta_apitag'] ) )
+/*
+		if( isset( $input['insta_apitag'] ) )
             $new_input['insta_apitag'] = strip_tags( $input['insta_apitag'] );
+*/
 
         if( isset( $input['insta_count'] ) )
             $new_input['insta_count'] = absint( $input['insta_count'] );
@@ -450,29 +329,25 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
     /** 
      * Print the Section text
      */
-    public function print_instagram_section_info()
-    {
+    public function print_instagram_section_info() {
         print 'Enter the Instagram Hashtag and number of images:';
     }
 
     /** 
      * Print the Section text
      */
-    public function print_section_info()
-    {
-        print 'Enter all your Instagram Client settings here inorder to make requests to the Instagram API:';
+    public function print_section_info() {
+        print '<p>Enter all your Instagram Client settings here inorder to make requests to the Instagram API:</p>';
     }
 
-    public function igag_setting_info()
-    {
+    public function igag_setting_info() {
         print 'Enter all your Instagram settings here:';
     }
 
     /** 
      * Print the Section text
      */
-    public function print_other_section_info()
-    {
+    public function print_other_section_info() {
         print 'Miscellaneous settings:';
     }
 
@@ -523,6 +398,7 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
     /** 
      * Get the settings option array and print one of its values
      */
+/*
     public function insta_apitag_callback()
     {
         printf(
@@ -530,6 +406,7 @@ add_action('igag_after_ul_list_images', 'example_igag_after_images');
             isset( $this->settings['insta_apitag'] ) ? esc_attr( $this->settings['insta_apitag']) : ''
         );
     }
+*/
 
     /** 
      * Get the settings option array and print one of its values
