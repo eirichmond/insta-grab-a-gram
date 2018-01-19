@@ -116,13 +116,15 @@ class Insta_Grab_Public {
 				$instasetup['insta_access_token'] = $data->access_token;
 				update_option('instagrabagram_option_name', $instasetup);
 				echo '<div class="instagrab-notice success">';
-				echo 'Congrats! Instagram has been authorised! <a href="'.get_bloginfo('url').'">Remove</a>';
+				echo 'Instagram has been authorised! Go back to setting to setup your Instagram feed <a href="'.get_bloginfo('url').'">Remove</a>';
 				echo '</div>';
 			} else {
 				echo '<div class="instagrab-notice error">';
 				echo 'Error! Unable to connect to your instagram account! Please try again.';
 				echo '</div>';
 			}
+			
+			return $instagram;
 
 		}
 	
@@ -143,6 +145,18 @@ class Insta_Grab_Public {
 
 		$instasetup = get_option( 'instagrabagram_option_name' );
 		$instasettings = get_option( 'instagrabagram_settings_name' );
+
+	    $instagram = new Instagram(array(
+	      'apiKey'      => $instasetup['insta_apiKey'],
+	      'apiSecret'   => $instasetup['insta_apiSecret'],
+	      'apiCallback' => $instasetup['insta_apiCallback']
+	    ));
+	    
+	    $instagram->setAccessToken($instasetup['insta_access_token']);
+	    
+	    $user = $instagram->getUserMedia('self',10);
+	    
+		var_dump($user);
 
 		if (!empty($instasetup)) {
 		

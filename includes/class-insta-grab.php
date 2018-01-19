@@ -112,6 +112,7 @@ class Insta_Grab {
 		 * The class responsible for instagrams api.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-instagram.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-InstagramException.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the Dashboard.
