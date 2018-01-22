@@ -275,7 +275,7 @@ class Insta_Grab_Admin {
 
         add_settings_field(
             'insta_count', // ID
-            'How Many Images to pull (numeric)', // Title 
+            'Image count', // Title 
             array( $this, 'insta_count_callback' ), // Callback
             'igag-setting-admin', // Page
             'igag_setting_section_id' // Section           
@@ -283,8 +283,16 @@ class Insta_Grab_Admin {
 
         add_settings_field(
             'insta_link', // ID
-            'Clickable image links to Instagram', // Title 
+            'Enable link', // Title 
             array( $this, 'insta_link_callback' ), // Callback
+            'igag-setting-admin', // Page
+            'igag_setting_section_id' // Section           
+        );      
+
+        add_settings_field(
+            'insta_stats', // ID
+            'Show account stats', // Title 
+            array( $this, 'insta_stats_callback' ), // Callback
             'igag-setting-admin', // Page
             'igag_setting_section_id' // Section           
         );      
@@ -321,6 +329,9 @@ class Insta_Grab_Admin {
 
         if( isset( $input['insta_link'] ) )
             $new_input['insta_link'] = strip_tags( $input['insta_link'] );
+
+        if( isset( $input['insta_stats'] ) )
+            $new_input['insta_stats'] = strip_tags( $input['insta_stats'] );
 
 
         return $new_input;
@@ -427,6 +438,17 @@ class Insta_Grab_Admin {
 		$linked = isset( $this->settings['insta_link'] ) ? esc_attr( $this->settings['insta_link']) : ''
 		?>
 		<input type="checkbox" id="insta_link" name="instagrabagram_settings_name[insta_link]" value="1" <?php checked( $linked, 1 ); ?> />
+		<?php
+    }
+
+    /** 
+     * Get the settings option array and print one of its values
+     */
+    public function insta_stats_callback()
+    {
+		$linked = isset( $this->settings['insta_stats'] ) ? esc_attr( $this->settings['insta_stats']) : ''
+		?>
+		<input type="checkbox" id="insta_stats" name="instagrabagram_settings_name[insta_stats]" value="1" <?php checked( $linked, 1 ); ?> />
 		<?php
     }
 

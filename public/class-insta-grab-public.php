@@ -73,7 +73,7 @@ class Insta_Grab_Public {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->insta_grab, plugin_dir_url( __FILE__ ) . 'css/insta-grab-public.css', array(), $this->version, 'all' );
+		wp_register_style( $this->insta_grab, plugin_dir_url( __FILE__ ) . 'css/insta-grab-public.css', array(), $this->version, 'all' );
 
 	}
 	
@@ -96,8 +96,17 @@ class Insta_Grab_Public {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->insta_grab, plugin_dir_url( __FILE__ ) . 'js/insta-grab-public.js', array( 'jquery' ), $this->version, false );
+		$instagram = $this->instagram_instance();
+		$instasettings = get_option( 'instagrabagram_settings_name' );
+	    $usermedias = $instagram->getUserMedia('self', $instasettings['insta_count']);
+	    $medias = $this->collate_media($usermedias);
 
+		// Register the script
+		wp_register_script( $this->insta_grab, plugin_dir_url( __FILE__ ) . 'js/insta-grab-public.js', array( 'jquery' ), $this->version, false );
+		
+		wp_localize_script( $this->insta_grab, 'object_name', $medias );
+
+		
 	}
 	
 	public function check_instagram_authorised() {
@@ -131,6 +140,103 @@ class Insta_Grab_Public {
 	}
 	
 	/**
+	 * Create an instance of the instagram class.
+	 */
+	public function instagram_instance() {
+
+		$instasetup = get_option( 'instagrabagram_option_name' );
+
+	    $instagram = new Instagram(array(
+	      'apiKey'      => $instasetup['insta_apiKey'],
+	      'apiSecret'   => $instasetup['insta_apiSecret'],
+	      'apiCallback' => $instasetup['insta_apiCallback']
+	    ));
+	    
+	    $instagram->setAccessToken($instasetup['insta_access_token']);
+	    
+	    return $instagram;
+
+	}
+	
+	
+	
+	/**
+	 * Create array of users bio.
+	 */
+	public function collate_bio($user) {
+		
+		$array = array(
+			'username' => $user->data->username,
+			'profile_picture' => $user->data->profile_picture,
+			'full_name' => $user->data->full_name,
+			'bio' => $user->data->bio,
+		);
+						
+		return $array;
+	}
+
+	/**
+	 * Create array of users stats.
+	 */
+	public function collate_stats($user) {
+		
+		$array = array();
+		foreach ($user->data->counts as $k => $stat) {
+			$array[$k] = $stat;
+		}
+		
+		return $array;
+	}
+
+	/**
+	 * Create array of users media.
+	 */
+	public function collate_media($usermedias) {
+		
+		$instagram = $this->instagram_instance();
+	    $user = $instagram->getUser('self');
+	    $profile = $this->collate_bio($user);
+		
+		$array = array();
+		foreach ($usermedias->data as $k => $data) {
+			$array[$k]['profile'] = $profile;
+			$array[$k]['thumbnail'] = $data->images->thumbnail->url;
+			$array[$k]['low_resolution'] = $data->images->low_resolution->url;
+			$array[$k]['standard_resolution'] = $data->images->standard_resolution->url;
+			$array[$k]['likes'] = $data->likes->count;
+			$array[$k]['caption'] = $data->caption->text;
+			$array[$k]['comments'] = $data->comments->count;
+			$array[$k]['link'] = $data->link;
+		}
+		
+		return $array;
+	}
+	
+	/**
+	 * Create opening href if link enabled.
+	 */
+	public function render_item_start($k, $media) {
+		$instasettings = get_option( 'instagrabagram_settings_name' );
+		$href = '';
+		if ($instasettings['insta_link']) {
+			$href = '<a href="#" class="igmedia" data-media_key="'.$k.'">';
+		}
+		echo $href;
+	}
+	
+	/**
+	 * Create closing href if link enabled.
+	 */
+	public function render_item_end($media) {
+		$instasettings = get_option( 'instagrabagram_settings_name' );
+		$href = '';
+		if ($instasettings['insta_link']) {
+			$href = '</a>';
+		}
+		echo $href;
+	}
+	
+	/**
 	 * Render public.
 	 * @TODO add conditionals for options
 	 * @TODO debug current wp themes and add to history notes
@@ -143,31 +249,25 @@ class Insta_Grab_Public {
 		$article_id = 'instagrab';
 		$ul_id = 'igag-ul';
 
-		$instasetup = get_option( 'instagrabagram_option_name' );
 		$instasettings = get_option( 'instagrabagram_settings_name' );
+						
+		$instagram = $this->instagram_instance();
+	    
+	    $user = $instagram->getUser('self');
+	    	    
+	    $stats = $this->collate_stats($user);
 
-	    $instagram = new Instagram(array(
-	      'apiKey'      => $instasetup['insta_apiKey'],
-	      'apiSecret'   => $instasetup['insta_apiSecret'],
-	      'apiCallback' => $instasetup['insta_apiCallback']
-	    ));
+	    $bio = $this->collate_bio($user);
 	    
-	    $instagram->setAccessToken($instasetup['insta_access_token']);
+	    $usermedias = $instagram->getUserMedia('self', $instasettings['insta_count']);
+	    	    
+	    $medias = $this->collate_media($usermedias);
+	    	    
+		include_once(plugin_dir_path( dirname( __FILE__ ) ) . 'public/partials/insta-grab-feed.php');
 	    
-	    $user = $instagram->getUserMedia('self',10);
-	    
-		var_dump($user);
-
-		if (!empty($instasetup)) {
-		
 /*
-		    $instagram = new Instagram(array(
-		      'apiKey'      => $instasetup['insta_apiKey'],
-		      'apiSecret'   => $instasetup['insta_apiSecret'],
-		      'apiCallback' => $instasetup['insta_apiCallback']
-		    ));
-*/
-		    
+		if (!empty($instasetup)) {
+				    
 		    $hashtag = $instasettings['insta_apitag'];
 		    $hashtag = 'notmissingthecold'; 
 
@@ -232,6 +332,7 @@ class Insta_Grab_Public {
 			$settings_url = get_bloginfo('url') . '/wp-admin/options-general.php?page=instagrabagram-setting-admin';
 			echo '<div class="row"><div class="primary alert">There seems to be a problem connecting to your Instagram App, have you input the correct <a href="' . $settings_url . '">details here</a></div></div>';
 		}
+*/
 	
 	}
 	
@@ -265,6 +366,13 @@ class Insta_Grab_Public {
 	 * @since    1.0.0
 	 */
 	public function instagrabagram_func( $atts ){
+		
+		wp_enqueue_style( $this->insta_grab);
+
+		// Enqueued script with localized data.
+		wp_enqueue_script( $this->insta_grab );
+
+		wp_enqueue_script( 'font-awesome', 'https://use.fontawesome.com/releases/v5.0.4/js/all.js');
 		
 		$this->get_instagram_settings();
 		
