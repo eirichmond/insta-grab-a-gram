@@ -3,8 +3,8 @@ Contributors: erichmond
 Donate link: http://www.squareonemd.co.uk/
 Tags: Instagram, tag, hashtag
 Requires at least: 4.5
-Tested up to: 4.8.1
-Stable tag: 1.2.1
+Tested up to: 4.9.2
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,7 @@ This plugin creates a feed of Instagram images on your WordPress site based on a
 
 == Description ==
 
-Simply register your Instagram application to authenticate and authorize your requests.
-Then whenever an image is posted to Instagram with a specific hashtag this plugin will
-request only those images and render them in your WordPress installation.
+Simply register your Instagram application to authenticate and authorize your requests. Then whenever an image is posted to Instagram with a specific hashtag this plugin will request only those images and render them in your WordPress installation.
 
 Please read the Instagram terms for your own usage at http://Instagram.com/about/legal/terms/.
 
@@ -55,11 +53,17 @@ once activated you will be given the CLIENT ID and CLIENT SECRET in your account
 
 == Changelog ==
 
-= 1.2.1 =
+= 1.2.2 =
+
+* Fatal Error fixed
+* string sanitisation
+* Compatibility test
+
+= 1.2.2 =
 
 * Compatibility test
 
-= 1.2.0 =
+= 1.2.2 =
 
 * Authoring link changes
 * Tab conflict with other plugins
@@ -114,8 +118,6 @@ once activated you will be given the CLIENT ID and CLIENT SECRET in your account
 * First release.
 
 == Upgrade Notice ==
-
-== Arbitrary section ==
 
 == A brief Markdown Example ==
 

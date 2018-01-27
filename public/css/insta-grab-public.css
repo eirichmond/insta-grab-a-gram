@@ -2,210 +2,28 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+ 
 #instagrab li {
-  width: 32.333%;
-  display: inline-block;
-  padding: 0.5%;
+    width: 32.333%;
+    display: inline-block;
+    padding: 0.5%;
 }
 
 .instagrab-notice {
-  padding: 10px;
-  position: absolute;
-  top: 0;
-  width: 100%;
-  margin-top: 32px;
-  z-index: 2000;
+	padding: 10px;
+	position: absolute;
+	top:0;
+	width: 100%;
+	margin-top:32px;
+	z-index: 2000;
 }
-
 .instagrab-notice.success {
-  background: green;
-  color: #fff;
-  text-align: center;
+	background: green;
+	color: #fff;
+	text-align: center;
 }
-
 .instagrab-notice.error {
-  background: red;
-  color: #fff;
-  text-align: center;
-}
-
-/**
- *
- * css grid
- *
- */
-.instgram-stats {
-  text-align: center;
-  margin: 30px;
-  color: #666;
-}
-
-.instgram-stats ul li {
-  display: inline;
-  list-style: none;
-  padding: 4px 20px;
-  margin: 0;
-  border-right: 1px solid;
-}
-
-.instgram-stats ul li:last-child {
-  border-right: none;
-}
-
-.instagram-three-col-grid {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  grid-gap: 20px 25px;
-  padding: 0px;
-}
-
-.instagram-grid > .item {
-  text-align: center;
-  padding: 20px 0;
-  font-size: 30px;
-}
-
-.instagram-three-col-grid .item {
-  position: relative;
-}
-
-.item-stats {
-  position: absolute;
-  top: 0;
-  color: #fff;
-  opacity: 0;
-  -webkit-transition: all 0.5s ease;
-  transition: all 0.5s ease;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-}
-
-.item-stats:hover {
-  opacity: 1;
-}
-
-.item > img {
-  -webkit-transition: all 1s ease;
-  transition: all 1s ease;
-}
-
-.item:hover > img {
-  -webkit-filter: contrast(50%) brightness(50%);
-  filter: contrast(50%) brightness(50%);
-  z-index: 0;
-}
-
-ul.item-stats-list {
-  list-style: none;
-  text-align: center;
-  padding: 45% 0 0;
-}
-
-ul.item-stats-list li {
-  display: inline;
-  padding: 5%;
-}
-
-/*
- *
- *  Modal 
- *
- */
-#igoverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  opacity: 0.5;
-  filter: alpha(opacity=50);
-}
-
-#igmodal {
-  position: absolute;
-  background: url(tint20.png) 0 0 repeat;
-  z-index: 10;
-}
-
-#igcontent {
-  border-radius: 8px;
-  background: #fff;
-  width: 900px;
-}
-
-#igclose {
-  position: absolute;
-  width: 22px;
-  height: 23px;
-  display: block;
-  top: -7px;
-  right: -7px;
-  z-index: 1;
-  background: #fff;
-  text-align: center;
-  margin: 0;
-  padding: 0;
-  border-radius: 25px;
-}
-
-.igimage-holder {
-  float: left;
-  width: 70%;
-}
-
-.igcontent-holder {
-  float: right;
-  padding: 20px;
-  width: 30%;
-  font-size: 13px;
-}
-
-.igimage-holder img {
-  display: block;
-}
-
-.igcontent-holder .likes-comments ul {
-  list-style: none;
-}
-
-.igcontent-holder .likes-comments ul li {
-  display: inline;
-  padding: 10px;
-}
-
-.igcontent-holder .likes-comments ul li.iginstagram {
-  margin: 0;
-  padding: 0 8px 0 0;
-  font-size: 14px;
-}
-
-.igcontent-holder .top span.profile-image {
-  width: 50px;
-  height: 50px;
-  display: inline-block;
-  border-radius: 50px;
-  overflow: hidden;
-  margin-right: 20px;
-}
-
-.igcontent-holder .top span.profile-name {
-  vertical-align: top;
-  font-weight: 600;
-}
-
-.igclearer {
-  clear: both;
-}
-
-.igcontent-holder .top, .igcontent-holder .comments {
-  border-bottom: 1px solid #c5c5c5;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
-}
-
-/* prevent scrolling when modal is open */
-body.noscroll {
-  overflow: hidden;
+	background: red;
+	color: #fff;
+	text-align: center;
 }

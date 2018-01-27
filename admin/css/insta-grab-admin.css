@@ -7,24 +7,18 @@
     display:block;
 }
 
-.authorise-instagram {
-    text-align: center;
-    background: #ffffff;
-    height: 100%;
-    width: 100%;
+#poststuff .tabs h3 {
+    background: white;
+    padding: 20px 0px 5px;
+    margin: 0px;
 }
-.authorise-instagram a {
-    padding-top:30px;
-    text-decoration:none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    background: #ffffff;
+
+#postsuff .tabs h2 {
+	padding-bottom: 0px;
 }
-.authorise-instagram h4 {
-    font-size:20px;
-    margin:0;
-    padding:0;
+
+#poststuff h2.insta-nav-tab-wrapper {
+	padding-bottom: 0px;
+	border-bottom: none;
+	display: table;
 }

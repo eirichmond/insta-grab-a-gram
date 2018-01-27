@@ -112,7 +112,6 @@ class Insta_Grab {
 		 * The class responsible for instagrams api.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-instagram.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-InstagramException.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the Dashboard.
@@ -164,7 +163,6 @@ class Insta_Grab {
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_page' );
 		// add admin options
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'page_init' );
-
 
 	}
 

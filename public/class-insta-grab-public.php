@@ -73,10 +73,10 @@ class Insta_Grab_Public {
 		 * class.
 		 */
 
-		wp_register_style( $this->insta_grab, plugin_dir_url( __FILE__ ) . 'css/insta-grab-public.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->insta_grab, plugin_dir_url( __FILE__ ) . 'css/insta-grab-public.css', array(), $this->version, 'all' );
 
 	}
-	
+
 	/**
 	 * Register the stylesheets for the public-facing side of the site.
 	 *
@@ -96,17 +96,8 @@ class Insta_Grab_Public {
 		 * class.
 		 */
 
-		$instagram = $this->instagram_instance();
-		$instasettings = get_option( 'instagrabagram_settings_name' );
-	    $usermedias = $instagram->getUserMedia('self', $instasettings['insta_count']);
-	    $medias = $this->collate_media($usermedias);
+		wp_enqueue_script( $this->insta_grab, plugin_dir_url( __FILE__ ) . 'js/insta-grab-public.js', array( 'jquery' ), $this->version, false );
 
-		// Register the script
-		wp_register_script( $this->insta_grab, plugin_dir_url( __FILE__ ) . 'js/insta-grab-public.js', array( 'jquery' ), $this->version, false );
-		
-		wp_localize_script( $this->insta_grab, 'object_name', $medias );
-
-		
 	}
 	
 	public function check_instagram_authorised() {
@@ -125,215 +116,135 @@ class Insta_Grab_Public {
 				$instasetup['insta_access_token'] = $data->access_token;
 				update_option('instagrabagram_option_name', $instasetup);
 				echo '<div class="instagrab-notice success">';
-				echo 'Instagram has been authorised! Go back to setting to setup your Instagram feed <a href="'.get_bloginfo('url').'">Remove</a>';
+				echo 'Congrats! Instagram has been authorised! <a href="'.get_bloginfo('url').'">Remove</a>';
 				echo '</div>';
 			} else {
 				echo '<div class="instagrab-notice error">';
 				echo 'Error! Unable to connect to your instagram account! Please try again.';
 				echo '</div>';
 			}
-			
-			return $instagram;
 
 		}
 	
 	}
 	
 	/**
-	 * Create an instance of the instagram class.
-	 */
-	public function instagram_instance() {
-
-		$instasetup = get_option( 'instagrabagram_option_name' );
-
-	    $instagram = new Instagram(array(
-	      'apiKey'      => $instasetup['insta_apiKey'],
-	      'apiSecret'   => $instasetup['insta_apiSecret'],
-	      'apiCallback' => $instasetup['insta_apiCallback']
-	    ));
-	    
-	    $instagram->setAccessToken($instasetup['insta_access_token']);
-	    
-	    return $instagram;
-
-	}
-	
-	
-	
-	/**
-	 * Create array of users bio.
-	 */
-	public function collate_bio($user) {
-		
-		$array = array(
-			'username' => $user->data->username,
-			'profile_picture' => $user->data->profile_picture,
-			'full_name' => $user->data->full_name,
-			'bio' => $user->data->bio,
-		);
-						
-		return $array;
-	}
-
-	/**
-	 * Create array of users stats.
-	 */
-	public function collate_stats($user) {
-		
-		$array = array();
-		foreach ($user->data->counts as $k => $stat) {
-			$array[$k] = $stat;
-		}
-		
-		return $array;
-	}
-
-	/**
-	 * Create array of users media.
-	 */
-	public function collate_media($usermedias) {
-		
-		$instagram = $this->instagram_instance();
-	    $user = $instagram->getUser('self');
-	    $profile = $this->collate_bio($user);
-		
-		$array = array();
-		foreach ($usermedias->data as $k => $data) {
-			$array[$k]['profile'] = $profile;
-			$array[$k]['thumbnail'] = $data->images->thumbnail->url;
-			$array[$k]['low_resolution'] = $data->images->low_resolution->url;
-			$array[$k]['standard_resolution'] = $data->images->standard_resolution->url;
-			$array[$k]['likes'] = $data->likes->count;
-			$array[$k]['caption'] = $data->caption->text;
-			$array[$k]['comments'] = $data->comments->count;
-			$array[$k]['link'] = $data->link;
-		}
-		
-		return $array;
-	}
-	
-	/**
-	 * Create opening href if link enabled.
-	 */
-	public function render_item_start($k, $media) {
-		$instasettings = get_option( 'instagrabagram_settings_name' );
-		$href = '';
-		if ($instasettings['insta_link']) {
-			$href = '<a href="#" class="igmedia" data-media_key="'.$k.'">';
-		}
-		echo $href;
-	}
-	
-	/**
-	 * Create closing href if link enabled.
-	 */
-	public function render_item_end($media) {
-		$instasettings = get_option( 'instagrabagram_settings_name' );
-		$href = '';
-		if ($instasettings['insta_link']) {
-			$href = '</a>';
-		}
-		echo $href;
-	}
-	
-	/**
-	 * Render public.
-	 * @TODO add conditionals for options
-	 * @TODO debug current wp themes and add to history notes
-	 * @TODO finalise public css
-	 * @TODO allow user css overide
+	 * get instagram settings
+	 * @TODO clean this up
 	 * @since    1.0.0
 	 */
-	public function get_instagram_settings () {
+	public function render_instagram_feed () {
 		
 		$article_id = 'instagrab';
 		$ul_id = 'igag-ul';
 
-		$instasettings = get_option( 'instagrabagram_settings_name' );
-						
-		$instagram = $this->instagram_instance();
-	    
-	    $user = $instagram->getUser('self');
-	    	    
-	    $stats = $this->collate_stats($user);
-
-	    $bio = $this->collate_bio($user);
-	    
-	    $usermedias = $instagram->getUserMedia('self', $instasettings['insta_count']);
-	    	    
-	    $medias = $this->collate_media($usermedias);
-	    	    
-		include_once(plugin_dir_path( dirname( __FILE__ ) ) . 'public/partials/insta-grab-feed.php');
-	    
-/*
-		if (!empty($instasetup)) {
-				    
-		    $hashtag = $instasettings['insta_apitag'];
-		    $hashtag = 'notmissingthecold'; 
-
-		    
-			$curl = curl_init();
-			
-			curl_setopt_array($curl, array(
-				
-				CURLOPT_URL => 'https://api.instagram.com/v1/tags/'.$hashtag.'/media/recent?access_token='.$instasetup['insta_access_token'],
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_ENCODING => "",
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 30,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => "GET",
-				CURLOPT_HTTPHEADER => array(
-					"authorization: Basic Og==",
-					"cache-control: no-cache",
-					"postman-token: d9f6ca69-3642-eb3d-c5f6-d6cba3b0cd81"
-				),
-			));
-			
-			$response = curl_exec($curl);
-			$err = curl_error($curl);
-			
-			curl_close($curl);
-			
-			if ($err) {
-				echo "cURL Error #:" . $err;
-			} else {
-				$jsondata = json_decode($response);
-			}
+		$jsondata = $this->curl_instagram_request();
+		
+		$instasettings = $this->get_instagram_settings();
+		
+		$html = '';
+		
+		if ($jsondata){
 			
 			$medias = $jsondata;
-
+			
 			$instagrabagram_results = json_decode(json_encode($medias), true);
 			
-			echo '<pre>';print_r($instagrabagram_results);echo '</pre>';
-			
 			$media_count = $instasettings['insta_count'];
-
-			// debug using $variable
 			
 			if ($instagrabagram_results['meta']['code'] == '400'){
-				echo 'sorry couldn\'t connect to instagram';		
+				$html .= 'sorry couldn\'t connect to instagram';		
 			} else {
-				echo '<article id="'.apply_filters('igag_article_id', $article_id).'" class="hentry">';
+				if (empty($instagrabagram_results['data'])) {
+					$html .= 'Sorry, nothing found under the hashtag "'.$hashtag.'"';
+				}
+				
+				$html .= '<article id="'.apply_filters('igag_article_id', $article_id).'" class="hentry">';
 				do_action('igag_before_ul_list_images');
-				echo '<ul id="'. apply_filters('igag_ul_id',$ul_id) .'" class="entry-content">';
+				$html .= '<ul id="'. apply_filters('igag_ul_id',$ul_id) .'" class="entry-content">';
 						$count = 0;
 					    foreach ($instagrabagram_results['data'] as $media) {
 					    	if ($count == $media_count) continue;
-					    	$image = $media['images']['low_resolution']['url'];
-					    	echo '<li>'.$this->imagelinkcheck($instasetup, $media).'</li>';
+					    	$image = $media['images']['low_resolution']['url'];					    	
+					    	$html .= '<li>'.$this->imagelinkcheck($instasetup, $media).'</li>';
 							$count++;
 					    }
-				echo '</ul>';
+				$html .= '</ul>';
 				do_action('igag_after_ul_list_images');
-				echo '</article>';
+				$html .= '</article>';
 			}
 		} else {
 			$settings_url = get_bloginfo('url') . '/wp-admin/options-general.php?page=instagrabagram-setting-admin';
-			echo '<div class="row"><div class="primary alert">There seems to be a problem connecting to your Instagram App, have you input the correct <a href="' . $settings_url . '">details here</a></div></div>';
+			$html .= '<div class="row"><div class="primary alert">There seems to be a problem connecting to your Instagram App, have you input the correct <a href="' . $settings_url . '">details here</a></div></div>';
 		}
-*/
+		
+		
+		return $html;
 	
+	}
+	
+	/**
+	 * Get the settings.
+	 *
+	 * @since    1.0.0
+	 */
+	public function get_instagram_settings() {
+		$instasettings = get_option( 'instagrabagram_settings_name' );
+		return $instasettings;
+	}
+	
+	/**
+	 * Get the setup settings.
+	 *
+	 * @since    1.0.0
+	 */
+	public function get_instagram_setup() {
+		$instasetup = get_option( 'instagrabagram_option_name' );
+		return $instasetup;
+	}
+
+	/**
+	 * Make the curl request.
+	 *
+	 * @since    1.0.0
+	 */
+	public function curl_instagram_request() {
+		
+		$instasetup = $this->get_instagram_setup();
+		$instasettings = $this->get_instagram_settings();
+				
+	    $hashtag = $instasettings['insta_apitag'];	 
+	    
+		$curl = curl_init();
+		
+		curl_setopt_array($curl, array(
+			CURLOPT_URL => 'https://api.instagram.com/v1/tags/'.$hashtag.'/media/recent?access_token='.$instasetup['insta_access_token'].'&scope=basic',
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => "GET",
+			CURLOPT_HTTPHEADER => array(
+				"authorization: Basic Og==",
+				"cache-control: no-cache",
+				"postman-token: d9f6ca69-3642-eb3d-c5f6-d6cba3b0cd81"
+			),
+		));
+		
+		$response = curl_exec($curl);
+		$err = curl_error($curl);
+		
+		curl_close($curl);
+		
+		if ($err) {
+			echo "cURL Error #:" . $err;
+		} else {
+			$jsondata = json_decode($response);
+		}
+		
+		return $jsondata;
+
 	}
 	
 	public function imagelinkcheck($instasetup, $media) {
@@ -359,7 +270,7 @@ class Insta_Grab_Public {
 		add_shortcode( 'instagrabagram', array($this, 'instagrabagram_func') );
 		
 	}
-	
+
 	/**
 	 * Fire instagrabagram_func shortcode.
 	 *
@@ -367,14 +278,9 @@ class Insta_Grab_Public {
 	 */
 	public function instagrabagram_func( $atts ){
 		
-		wp_enqueue_style( $this->insta_grab);
-
-		// Enqueued script with localized data.
-		wp_enqueue_script( $this->insta_grab );
-
-		wp_enqueue_script( 'font-awesome', 'https://use.fontawesome.com/releases/v5.0.4/js/all.js');
+		$html = $this->render_instagram_feed();
 		
-		$this->get_instagram_settings();
+		return $html;
 		
 	}
 
