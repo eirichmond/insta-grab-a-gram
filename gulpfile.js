@@ -12,7 +12,7 @@ gulp.task('sass', function(){
         browsers: ['last 2 versions'],
         cascade: false
     }))
-    .pipe(sass({outputStyle: 'compressed'})) // Converts Sass to CSS with gulp-sass
+    .pipe(sass({outputStyle: 'expanded'})) // Converts Sass to CSS with gulp-sass
     .pipe(gulp.dest('public/css'))
     .pipe(browserSync.reload({
       stream: true
